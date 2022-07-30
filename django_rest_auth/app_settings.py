@@ -5,6 +5,9 @@ from django_rest_auth.serializers import (
 from django_rest_auth.serializers import (
     JWTSerializerWithExpiration as DefaultJWTSerializerWithExpiration
 )
+from django_rest_auth.serializers import (
+    JWTSerializer as DefaultJWTSerializer
+)
 
 from .utils import import_callable
 
@@ -15,3 +18,7 @@ LoginSerializer = import_callable(serializers.get(
 
 JWTSerializerWithExpiration = import_callable(serializers.get(
     'JWT_SERIALIZER_WITH_EXPIRATION', DefaultJWTSerializerWithExpiration))
+
+JWTSerializer = import_callable(serializers.get(
+    'JWT_SERIALIZER', DefaultJWTSerializer
+))

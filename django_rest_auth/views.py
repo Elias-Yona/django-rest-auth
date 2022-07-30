@@ -8,7 +8,7 @@ from rest_framework import status
 
 from .models import get_token_model
 from .app_settings import (
-    LoginSerializer, JWTSerializerWithExpiration
+    LoginSerializer, JWTSerializerWithExpiration, JWTSerializer
 )
 
 
@@ -30,10 +30,8 @@ class LoginView(GenericAPIView):
         if getattr(settings, 'REST_USE_JWT', False):
             if getattr(settings, 'JWT_AUTH_RETURN_EXPIRATION', False):
                 response_serializer = JWTSerializerWithExpiration
-                pass
             else:
-                # TODO Create a JWT Serializer
-                pass
+                response_serializer = JWTSerializer
         else:
             # TODO Create a Token Serializer
             pass

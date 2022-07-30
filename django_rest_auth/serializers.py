@@ -125,6 +125,34 @@ class LoginSerializer(serializers.Serializer):
         return attrs
 
 
+class UserDetailSerializer(serializers.ModelSerializer):
+    """
+    User model with/without password
+    """
+    @staticmethod
+    def validate_username(username):
+        if 'allauth.account' not in settings.INSTALLED_APPS:
+            return username
+
+        from allauth.account.adapter import get_adapter
+        username = get_adapter().clean_username(username)
+        return username
+
+    class Meta:
+        extra_fields = []
+        if hasattr(UserModel, 'USERNAME_FIELD'):
+            extra_fields.append(UserModel.USERNAME_FIELD)
+        if hasattr(UserModel, 'EMAIL_FIELD'):
+            extra_fields.append(UserModel.EMAIL_FIELD)
+        if hasattr(UserModel, 'first_name'):
+            extra_fields.append('first_name')
+        if hasattr(UserModel, 'last_name'):
+            extra_fields.append('last_name')
+        model = UserModel
+        fields = ('pk', *extra_fields)
+        read_only_fields = ('email')
+
+
 class JWTSerializer(serializers.Serializer):
     """
     Serializer for JWT authentication
@@ -147,3 +175,11 @@ class JWTSerializer(serializers.Serializer):
         user_data = JWTUserDetailsSerializer(
             obj['user'], context=self.context).data
         return user_data
+
+
+class JWTSerializerWithExpiration(JWTSerializer):
+    """
+    Serializer for JWT authentication with expiration times
+    """
+    access_token_expiration = serializers.DateTimeField()
+    refresh_token_expiration = serializers.DateTimeField()
