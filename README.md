@@ -12,13 +12,15 @@ In this version every route must return a JSON response
 
 2. Install a python virtual environment and activate it
 
-3. On the project root folder run `pip install -r requirements.txt`
+3. Clone the repo by running `git clone https://github.com/Elias-Yona/django-rest-auth.git`
 
-4. Run `python manage.py runserver`
+4. On the project root folder run `pip install -r requirements.txt`
 
-5. Open your browser and go to `http://127.0.0.1:8000`, you should see a rocket launching animation
+5. Run `python manage.py runserver`
 
-6. You're done! You've successfully setup the repository
+6. Open your browser and go to `http://127.0.0.1:8000`, you should see a rocket launching animation
+
+7. You're done! You've successfully setup the repository
 
 # VIEWS
 
