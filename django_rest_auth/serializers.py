@@ -14,11 +14,17 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(style={'input_type': 'password'})
 
     def authenticate(self, **kwargs):
+        # print("*******", type(authenticate(self.context['request'], **kwargs)))
+        # print("************", authenticate(self.context['request'], **kwargs))
+        # print("************", self.context)
+        # print("*************", kwargs)
+
         return authenticate(self.context['request'], **kwargs)
 
     def _validate_email(self, email, password):
         if email and password:
             user = self.authenticate(email=email, password=password)
+            print("u")
         else:
             msg = _('Must include email and password')
             raise exceptions.ValidationError(msg)
@@ -45,13 +51,18 @@ class LoginSerializer(serializers.Serializer):
     def get_auth_user_using_allauth(self, username, email, password):
         from allauth.account import app_settings
 
+        print("*******", app_settings)
+
         # Authentication through email
+        # print("*****", app_settings.AUTHENTICATION_METHOD)
+        # print("*****", app_settings.AuthenticationMethod.EMAIL)
         if app_settings.AUTHENTICATION_METHOD == app_settings.AuthenticationMethod.EMAIL:
             return self._validate_email(email, password)
 
+        # print("******", app_settings.AuthenticationMethod.USERNAME)
         # Authentication through username
         if app_settings.AUTHENTICATION_METHOD == app_settings.AuthenticationMethod.USERNAME:
-            return self._validate_email(username, password)
+            return self._validate_username(username, password)
 
         # Authentication either thorough username or email
         return self._validate_username_email(username, email, password)
@@ -61,6 +72,7 @@ class LoginSerializer(serializers.Serializer):
             try:
                 username = UserModel.objects.get(
                     email__iexact=email).get_username()
+                # print("******", username.)
             except UserModel.DoesNotExist:
                 pass
 
@@ -97,8 +109,10 @@ class LoginSerializer(serializers.Serializer):
     @staticmethod
     def validate_email_verification_status(user):
         from allauth.account import app_settings
+        # print("******", app_settings.EMAIL_VERIFICATION)
+        # print("********", app_settings.EmailVerificationMethod.MANDATORY)
         if (
-            app_setttings.EMAIL_VERIFICATION == app_settings.EmailVerificationMethod.MANDATORY
+            app_settings.EMAIL_VERIFICATION == app_settings.EmailVerificationMethod.MANDATORY
             and user.emailaddress_set.filter(email=user.email, verfified=True).exists()
         ):
             raise serializers.ValidationError(_('Email not verified'))
@@ -121,6 +135,8 @@ class LoginSerializer(serializers.Serializer):
             self.validate_email_verification_status(user)
 
         attrs['user'] = user
+
+        # print(attrs)
 
         return attrs
 
@@ -167,13 +183,15 @@ class JWTSerializer(serializers.Serializer):
         JWTSerializer. Defining it here to avoid circular imports
         """
         rest_auth_serializers = getattr(settings, 'REST_AUTH_SERIALIZERS', {})
-        # TODO Create a UserDetailsSerializer
         JWTUserDetailsSerializer = import_string(rest_auth_serializers.get(
             'USER_DETAILS_SERIALIZER',
             'django_rest_auth.serializers.UserDetailsSerializer')
         )
         user_data = JWTUserDetailsSerializer(
             obj['user'], context=self.context).data
+
+        print(user_data)
+
         return user_data
 
 
