@@ -12,7 +12,7 @@ from .app_settings import LoginSerializer
 
 class LoginView(GenericAPIView):
     permission_classes = (AllowAny,)
-    # TODO Create LoginSerializer class
+    serializer_class = LoginSerializer
     throttle_scope = 'django_rest_auth'
     user = None
     access_token = None
@@ -100,7 +100,7 @@ class LoginView(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         self.request = request
-        self.serializer = self.get_serializer(data=self.request_data)
+        self.serializer = self.get_serializer(data=self.request_data())
         self.serializer.is_valid(raise_exception=True)
 
         self.login()
