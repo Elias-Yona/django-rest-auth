@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import get_token_model
+from .app_settings import LoginSerializer
 
 
 class LoginView(GenericAPIView):
