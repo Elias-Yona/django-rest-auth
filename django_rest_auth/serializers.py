@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate, get_user_model
 from django.conf import settings
 from django.urls import exceptions as url_exceptions
 from django.utils.translation import gettext_lazy as _
+from django.utils.module_loading import import_string
 from rest_framework import serializers, exceptions
 
 UserModel = get_user_model()
@@ -96,7 +97,6 @@ class LoginSerializer(serializers.Serializer):
     @staticmethod
     def validate_email_verification_status(user):
         from allauth.account import app_settings
-
         if (
             app_setttings.EMAIL_VERIFICATION == app_settings.EmailVerificationMethod.MANDATORY
             and user.emailaddress_set.filter(email=user.email, verfified=True).exists()
@@ -123,3 +123,27 @@ class LoginSerializer(serializers.Serializer):
         attrs['user'] = user
 
         return attrs
+
+
+class JWTSerializer(serializers.Serializer):
+    """
+    Serializer for JWT authentication
+    """
+    access_token = serializers.CharField()
+    refresh_token = serializers.CharField()
+    user = serializers.SerializerMethodField()
+
+    def get_user(self, obj):
+        """
+        Required to allow using custom USER_DETAILS_SERIALIZER in
+        JWTSerializer. Defining it here to avoid circular imports
+        """
+        rest_auth_serializers = getattr(settings, 'REST_AUTH_SERIALIZERS', {})
+        # TODO Create a UserDetailsSerializer
+        JWTUserDetailsSerializer = import_string(rest_auth_serializers.get(
+            'USER_DETAILS_SERIALIZER',
+            'django_rest_auth.serializers.UserDetailsSerializer')
+        )
+        user_data = JWTUserDetailsSerializer(
+            obj['user'], context=self.context).data
+        return user_data

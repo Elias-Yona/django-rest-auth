@@ -7,7 +7,9 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import get_token_model
-from .app_settings import LoginSerializer
+from .app_settings import (
+    LoginSerializer, JWTSerializerWithExpiration
+)
 
 
 class LoginView(GenericAPIView):
@@ -27,7 +29,7 @@ class LoginView(GenericAPIView):
     def get_response_serializer(self):
         if getattr(settings, 'REST_USE_JWT', False):
             if getattr(settings, 'JWT_AUTH_RETURN_EXPIRATION', False):
-                # TODO Create a JWT Serializer with an expiration
+                response_serializer = JWTSerializerWithExpiration
                 pass
             else:
                 # TODO Create a JWT Serializer
@@ -89,7 +91,7 @@ class LoginView(GenericAPIView):
                 context=self.get_serializer_context()
             )
         else:
-            return Response(status=status.HTTP_204_NO_CONTEXT)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
         response = Response(serializer.data, status=status.HTTP_200_OK)
 
