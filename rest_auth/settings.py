@@ -59,12 +59,12 @@ REST_FRAMEWORK = {
 JWT_AUTH_COOKIE = 'django-rest-auth'
 JWT_AUTH_REFRESH_COOKIE = 'my-refresh-token'
 
-# REST_USE_JWT = True
+
+REST_USE_JWT = True
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(seconds=10),
-    'REFRESH_TOKEN_LIFETIME': timedelta(seconds=15)
-
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),
+    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=15)
 }
 
 MIDDLEWARE = [

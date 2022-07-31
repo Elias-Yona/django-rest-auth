@@ -110,8 +110,10 @@ class LoginView(GenericAPIView):
         # print("********", response.__dict__)
 
         if getattr(settings, 'REST_USE_JWT', False):
-            # TODO Create a function for setting jwt_cookies
-            pass
+            from .jwt_auth import set_jwt_cookies
+            set_jwt_cookies(response, self.access_token, self.refresh_token)
+
+        # print("********", response.__dict__['cookies'])
         return response
 
     def post(self, request, *args, **kwargs):
