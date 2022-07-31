@@ -215,4 +215,5 @@ class TokenSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = TokenModel
+        # print("*************", model.objects.all())
         fields = ('key',)

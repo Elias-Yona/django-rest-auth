@@ -8,7 +8,7 @@ from rest_framework import status
 
 from .models import get_token_model
 from .app_settings import (
-    LoginSerializer, JWTSerializerWithExpiration, JWTSerializer, TokenSerializer
+    LoginSerializer, JWTSerializerWithExpiration, JWTSerializer, TokenSerializer, create_token
 )
 from .utils import jwt_encode
 
@@ -50,9 +50,7 @@ class LoginView(GenericAPIView):
             # print("*********", self.access_token)
             # print("*********", self.refresh_token)
         elif token_model:
-            # TODO Create a create_token function
-            pass
-
+            self.token = create_token(token_model, self.user)
         if getattr(settings, 'REST_SESSION_LOGIN', False):
             self.process_login()
 
@@ -102,6 +100,8 @@ class LoginView(GenericAPIView):
                 instance=self.token,
                 context=self.get_serializer_context()
             )
+            # print("***********", serializer.instance)
+            # print("***********", serializer.context)
         else:
             return Response(status=status.HTTP_204_NO_CONTENT)
 

@@ -13,7 +13,7 @@ from django_rest_auth.serializers import (
 )
 
 
-from .utils import import_callable
+from .utils import import_callable, default_create_token
 
 serializers = getattr(settings, 'REST_AUTH_SERIALIZERS', {})
 
@@ -29,3 +29,6 @@ JWTSerializer = import_callable(serializers.get(
 
 TokenSerializer = import_callable(serializers.get(
     'TOKEN_SERIALIZER', DefaultTokenSerializer))
+
+create_token = import_callable(
+    getattr(settings, 'REST_AUTH_TOKEN_CREATOR', default_create_token))
