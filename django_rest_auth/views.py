@@ -8,7 +8,7 @@ from rest_framework import status
 
 from .models import get_token_model
 from .app_settings import (
-    LoginSerializer, JWTSerializerWithExpiration, JWTSerializer
+    LoginSerializer, JWTSerializerWithExpiration, JWTSerializer, TokenSerializer
 )
 from .utils import jwt_encode
 
@@ -34,8 +34,7 @@ class LoginView(GenericAPIView):
             else:
                 response_serializer = JWTSerializer
         else:
-            # TODO Create a Token Serializer
-            pass
+            response_serializer = TokenSerializer
         return response_serializer
 
     def login(self):

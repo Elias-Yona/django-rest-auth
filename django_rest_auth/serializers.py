@@ -5,6 +5,8 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.module_loading import import_string
 from rest_framework import serializers, exceptions
 
+from .models import TokenModel
+
 UserModel = get_user_model()
 
 
@@ -205,3 +207,12 @@ class JWTSerializerWithExpiration(JWTSerializer):
     """
     access_token_expiration = serializers.DateTimeField()
     refresh_token_expiration = serializers.DateTimeField()
+
+
+class TokenSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Token model.
+    """
+    class Meta:
+        model = TokenModel
+        fields = ('key',)
