@@ -141,7 +141,7 @@ class LoginSerializer(serializers.Serializer):
         return attrs
 
 
-class UserDetailSerializer(serializers.ModelSerializer):
+class UserDetailsSerializer(serializers.ModelSerializer):
     """
     User model with/without password
     """
@@ -166,7 +166,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
             extra_fields.append('last_name')
         model = UserModel
         fields = ('pk', *extra_fields)
-        read_only_fields = ('email')
+        # print("***********", fields)
+        read_only_fields = ('email',)
 
 
 class JWTSerializer(serializers.Serializer):
@@ -187,10 +188,13 @@ class JWTSerializer(serializers.Serializer):
             'USER_DETAILS_SERIALIZER',
             'django_rest_auth.serializers.UserDetailsSerializer')
         )
+        # print("************", obj["user"].__dict__)
         user_data = JWTUserDetailsSerializer(
             obj['user'], context=self.context).data
 
-        print(user_data)
+        # print("********", self.context)
+        # print("**********", obj['user'])
+        # print("**********", user_data)
 
         return user_data
 

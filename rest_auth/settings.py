@@ -56,6 +56,9 @@ REST_FRAMEWORK = {
 
 }
 
+JWT_AUTH_COOKIE = 'django-rest-auth'
+JWT_AUTH_REFRESH_COOKIE = 'my-refresh-token'
+
 REST_USE_JWT = True
 
 SIMPLE_JWT = {

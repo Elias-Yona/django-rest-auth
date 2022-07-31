@@ -48,7 +48,8 @@ class LoginView(GenericAPIView):
 
         if getattr(settings, 'REST_USE_JWT', False):
             self.access_token, self.refresh_token = jwt_encode(self.user)
-            print("*********", self.access_token, "  ", self.refresh_token)
+            # print("*********", self.access_token)
+            # print("*********", self.refresh_token)
         elif token_model:
             # TODO Create a create_token function
             pass
@@ -79,9 +80,11 @@ class LoginView(GenericAPIView):
                 'access_token': self.access_token
             }
 
+            # print("*********", data)
+
             if not auth_httponly:
                 data['refresh_token'] = self.refresh_token
-                print("********", self.refresh_token)
+                # print("********", self.refresh_token)
             else:
                 data['refresh_token'] = ""
 
@@ -89,6 +92,7 @@ class LoginView(GenericAPIView):
                 data['access_token_expiration'] = access_token_expiration
                 data['refresh_token_expiration'] = refresh_token_expiration
 
+            # print("*******", data)
             serializer = serializer_class(
                 instance=data,
                 context=self.get_serializer_context()
@@ -103,6 +107,8 @@ class LoginView(GenericAPIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         response = Response(serializer.data, status=status.HTTP_200_OK)
+
+        # print("********", response.__dict__)
 
         if getattr(settings, 'REST_USE_JWT', False):
             # TODO Create a function for setting jwt_cookies

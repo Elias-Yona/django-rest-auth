@@ -19,4 +19,4 @@ def jwt_encode(user):
         'JWT_TOKEN_CLAIMS_SERIALIZER', TokenObtainPairSerializer)
     TOPS = import_callable(JWTTokenClaimsSerializer)
     refresh = TOPS.get_token(user)
-    refresh.access_token, refresh
+    return refresh.access_token, refresh
