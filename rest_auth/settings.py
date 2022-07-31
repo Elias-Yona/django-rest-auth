@@ -56,6 +56,8 @@ REST_FRAMEWORK = {
 
 }
 
+ACCOUNT_LOGOUT_ON_GET = True
+
 JWT_AUTH_COOKIE = 'django-rest-auth'
 JWT_AUTH_REFRESH_COOKIE = 'my-refresh-token'
 
@@ -103,8 +105,10 @@ WSGI_APPLICATION = 'rest_auth.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'rest_auth',
+        'USER': 'elias',
+        'PASSWORD': 'elias'
     }
 }
 

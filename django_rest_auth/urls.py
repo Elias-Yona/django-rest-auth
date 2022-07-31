@@ -1,17 +1,19 @@
 from django.urls import path
 from django.conf import settings
-from .views import LoginView
+from .views import LoginView, LogoutView
 
 urlpatterns = [
-    path("login/", LoginView.as_view(), name="rest_login")
+    path("login/", LoginView.as_view(), name="rest_login"),
+    # URLs that require a user to be logged in with a valid session / token.
+    path('logout/', LogoutView.as_view(), name='rest_logout'),
 ]
 
 if getattr(settings, 'REST_USE_JWT', False):
     from rest_framework_simplejwt.views import TokenVerifyView
 
-    # TODO Create a refresh_view
+    from dj_rest_auth.jwt_auth import get_refresh_view
 
     urlpatterns += [
         path("token/verify/", TokenVerifyView.as_view(), name="token_verify"),
-        # TODO refresh_view will be here
+        path('token/refresh/', get_refresh_view().as_view(), name='token_refresh'),
     ]

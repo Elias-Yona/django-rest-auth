@@ -1,8 +1,9 @@
 from django.conf import settings
 from django.utils import timezone
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework.authentication import CSRFCheck
-from rest_framework import exceptions
+from rest_framework import exceptions, serializers
 
 
 def set_jwt_access_cookie(response, access_token):
@@ -51,6 +52,58 @@ def set_jwt_refresh_cookie(response, refresh_token):
 def set_jwt_cookies(response, access_token, refresh_token):
     set_jwt_access_cookie(response, access_token)
     set_jwt_refresh_cookie(response, refresh_token)
+
+
+def unset_jwt_cookies(response):
+    cookie_name = getattr(settings, 'JWT_AUTH_COOKIE', None)
+    refresh_cookie_name = getattr(settings, 'JWT_AUTH_REFRESH_COOKIE', None)
+    refresh_cookie_path = getattr(
+        settings, 'JWT_AUTH_REFRESH_COOKIE_PATH', '/')
+
+    if cookie_name:
+        response.delete_cookie(cookie_name, samesite=None)
+    if refresh_cookie_name:
+        response.delete_cookie(refresh_cookie_name,
+                               path=refresh_cookie_path, samesite=None)
+
+
+class CookieTokenRefreshSerializer(TokenRefreshSerializer):
+    refresh = serializers.CharField(
+        required=False, help_text='WIll override cookie.')
+
+    def extract_refresh_token(self):
+        request = self.context['request']
+        if 'refresh' in request.data and request.data['refresh'] != '':
+            return request.data['refresh']
+        cookie_name = getattr(settings, 'JWT_AUTH_REFRESH_COOKIE', None)
+        if cookie_name and cookie_name in request.COOKIES:
+            return request.COOKIES.get(cookie_name)
+        else:
+            from rest_framework_simplejwt.exceptions import InvalidToken
+            raise InvalidToken('No valid refresh token found.')
+
+    def validate(self, attrs):
+        attrs['refresh'] = self.extract_refresh_token()
+        return super().validate(attrs)
+
+
+def get_refresh_view():
+    """ Returns a Token Refresh CBV without a circular import """
+    from rest_framework_simplejwt.settings import api_settings as jwt_settings
+    from rest_framework_simplejwt.views import TokenRefreshView
+
+    class RefreshViewWithCookieSupport(TokenRefreshView):
+        serializer_class = CookieTokenRefreshSerializer
+
+        def finalize_response(self, request, response, *args, **kwargs):
+            if response.status_code == 200 and 'access' in response.data:
+                set_jwt_access_cookie(response, response.data['access'])
+                response.data['access_token_expiration'] = (
+                    timezone.now() + jwt_settings.ACCESS_TOKEN_LIFETIME)
+            if response.status_code == 200 and 'refresh' in response.data:
+                set_jwt_refresh_cookie(response, response.data['refresh'])
+            return super().finalize_response(request, response, *args, **kwargs)
+    return RefreshViewWithCookieSupport
 
 
 class JWTCookieAuthentication(JWTAuthentication):
