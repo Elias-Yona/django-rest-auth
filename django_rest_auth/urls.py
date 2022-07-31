@@ -11,7 +11,7 @@ urlpatterns = [
 if getattr(settings, 'REST_USE_JWT', False):
     from rest_framework_simplejwt.views import TokenVerifyView
 
-    from dj_rest_auth.jwt_auth import get_refresh_view
+    from django_rest_auth.jwt_auth import get_refresh_view
 
     urlpatterns += [
         path("token/verify/", TokenVerifyView.as_view(), name="token_verify"),
