@@ -4,18 +4,18 @@ from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.contrib.auth import get_user_model
 from django.views.decorators.debug import sensitive_post_parameters
 from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
 from .models import get_token_model
-from .app_settings import (
-    LoginSerializer, JWTSerializerWithExpiration, JWTSerializer, TokenSerializer, create_token
-)
+from .app_settings import (LoginSerializer, JWTSerializerWithExpiration,
+                           JWTSerializer, TokenSerializer, create_token, UserDetailsSerializer,)
 from .utils import jwt_encode
 
 sensitive_post_parameters_m = method_decorator(
@@ -134,7 +134,7 @@ class LoginView(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         self.request = request
-        print("********************", request.data)
+        # print("********************", request.data)
         self.serializer = self.get_serializer(data=self.request.data)
         self.serializer.is_valid(raise_exception=True)
         # print("********************", self.serializer)
@@ -221,3 +221,28 @@ class LogoutView(APIView):
                 response.data = {'detail': message}
                 response.status_code = status.HTTP_200_OK
         return response
+
+
+class UserDetailsView(RetrieveUpdateAPIView):
+    """
+    Reads and updates UserModel fields
+    Accepts GET, PUT, PATCH methods.
+
+    Default accepted fields: username, first_name, last_name
+    Default display fields: pk, username, email, first_name, last_name
+    Read-only fields: pk, email
+
+    Returns UserModel fields.
+    """
+    serializer_class = UserDetailsSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        return self.request.user
+
+    def get_queryset(self):
+        """
+        Adding this method since it is sometimes called when using
+        django-rest-swagger
+        """
+        return get_user_model().objects.none()
