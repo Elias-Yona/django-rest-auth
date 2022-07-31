@@ -1,6 +1,8 @@
 from django.contrib.auth import login as django_login
 from django.conf import settings
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.debug import sensitive_post_parameters
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -12,6 +14,12 @@ from .app_settings import (
 )
 from .utils import jwt_encode
 
+sensitive_post_parameters_m = method_decorator(
+    sensitive_post_parameters(
+        'password', 'old_password', 'new_password1', 'new_password2',
+    ),
+)
+
 
 class LoginView(GenericAPIView):
     permission_classes = (AllowAny,)
@@ -21,7 +29,11 @@ class LoginView(GenericAPIView):
     access_token = None
     token = None
 
+    @sensitive_post_parameters_m
     def dispatch(self, request, *args, **kwargs):
+        # print("*******", request)
+        # print("*******", args)
+        # print("*******", kwargs)
         return super().dispatch(request, *args, **kwargs)
 
     def process_login(self):
@@ -118,7 +130,7 @@ class LoginView(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         self.request = request
-        # print("********************", request.data)
+        print("********************", request.data)
         self.serializer = self.get_serializer(data=self.request.data)
         self.serializer.is_valid(raise_exception=True)
         # print("********************", self.serializer)
