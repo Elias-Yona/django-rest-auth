@@ -112,3 +112,4 @@ demo/react-spa/yarn.lock
 
 # Visual Studio Code
 .vscode/
+allauth/
