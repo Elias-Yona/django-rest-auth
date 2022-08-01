@@ -3,6 +3,7 @@ from django.conf import settings
 from allauth.account import app_settings as allauth_settings
 from allauth.account.utils import complete_signup
 from rest_framework.generics import CreateAPIView
+from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -84,3 +85,10 @@ class RegisterView(CreateAPIView):
             None,
         )
         return user
+
+
+class AccountConfirmEmailView(APIView):
+    # def post(self, request, *args, **kwargs):
+    #     return Response({"status": "Email verification link sent", "args": str(*args)},
+    #                     status=status.HTTP_200_OK)
+    pass

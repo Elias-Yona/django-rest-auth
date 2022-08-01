@@ -35,9 +35,6 @@ class LoginView(GenericAPIView):
 
     @sensitive_post_parameters_m
     def dispatch(self, request, *args, **kwargs):
-        # print("*******", request)
-        # print("*******", args)
-        # print("*******", kwargs)
         return super().dispatch(request, *args, **kwargs)
 
     def process_login(self):
@@ -55,24 +52,17 @@ class LoginView(GenericAPIView):
 
     def login(self):
         self.user = self.serializer.validated_data['user']
-        # print("*****", self.serializer)
-        # print("*****", self.user)
-        # print("*****", type(self.user))
         token_model = get_token_model()
-        # print("*******", token_model)
 
         if getattr(settings, 'REST_USE_JWT', False):
             self.access_token, self.refresh_token = jwt_encode(self.user)
-            # print("*********", self.access_token)
-            # print("*********", self.refresh_token)
         elif token_model:
-            self.token = create_token(token_model, self.user)
+            self.token = create_token(token_model, self.user, self.serializer)
         if getattr(settings, 'REST_SESSION_LOGIN', False):
             self.process_login()
 
     def get_response(self):
         serializer_class = self.get_response_serializer()
-        # print("********", serializer_class)
 
         if getattr(settings, 'REST_USE_JWT', False):
             from rest_framework_simplejwt.settings import (
@@ -80,10 +70,8 @@ class LoginView(GenericAPIView):
             )
             access_token_expiration = (
                 timezone.now() + jwt_settings.ACCESS_TOKEN_LIFETIME)
-            # print("*****", access_token_expiration)
             refresh_token_expiration = (
                 timezone.now() + jwt_settings.REFRESH_TOKEN_LIFETIME)
-            # print("*****", access_token_expiration)
             return_expiration_times = getattr(
                 settings, 'JWT_AUTH_RETURN_EXPIRATION', False)
             auth_httponly = getattr(settings, 'JWT_AUTH_HTTPONLY', False)
@@ -93,11 +81,8 @@ class LoginView(GenericAPIView):
                 'access_token': self.access_token
             }
 
-            # print("*********", data)
-
             if not auth_httponly:
                 data['refresh_token'] = self.refresh_token
-                # print("********", self.refresh_token)
             else:
                 data['refresh_token'] = ""
 
@@ -105,39 +90,30 @@ class LoginView(GenericAPIView):
                 data['access_token_expiration'] = access_token_expiration
                 data['refresh_token_expiration'] = refresh_token_expiration
 
-            # print("*******", data)
             serializer = serializer_class(
                 instance=data,
                 context=self.get_serializer_context()
             )
-            # print("******", serializer)
         elif self.token:
             serializer = serializer_class(
                 instance=self.token,
                 context=self.get_serializer_context()
             )
-            # print("***********", serializer.instance)
-            # print("***********", serializer.context)
         else:
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         response = Response(serializer.data, status=status.HTTP_200_OK)
 
-        # print("********", response.__dict__)
-
         if getattr(settings, 'REST_USE_JWT', False):
             from .jwt_auth import set_jwt_cookies
             set_jwt_cookies(response, self.access_token, self.refresh_token)
 
-        # print("********", response.__dict__['cookies'])
         return response
 
     def post(self, request, *args, **kwargs):
         self.request = request
-        # print("********************", request.data)
         self.serializer = self.get_serializer(data=self.request.data)
         self.serializer.is_valid(raise_exception=True)
-        # print("********************", self.serializer)
 
         self.login()
         return self.get_response()
@@ -165,11 +141,7 @@ class LogoutView(APIView):
 
     def logout(self, request):
         try:
-            # print("**********", request.__dict__)
-            # print("**********", request.user)
-            # print("**********", request.user.auth_token)
             request.user.auth_token.delete()
-            # print("**********", request.user.auth_token)
         except (AttributeError, ObjectDoesNotExist):
             pass
 

@@ -73,7 +73,6 @@ class CookieTokenRefreshSerializer(TokenRefreshSerializer):
 
     def extract_refresh_token(self):
         request = self.context['request']
-        # print("****************", self.context['request'])
         if 'refresh' in request.data and request.data['refresh'] != '':
             return request.data['refresh']
         cookie_name = getattr(settings, 'JWT_AUTH_REFRESH_COOKIE', None)
@@ -147,6 +146,5 @@ class JWTCookieAuthentication(JWTAuthentication):
         if raw_token is None:
             return None
 
-        # print("**********", validated_token)
         validated_token = self.get_validated_token(raw_token)
         return self.get_user(validated_token), validated_token

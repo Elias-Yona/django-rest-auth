@@ -66,6 +66,9 @@ ACCOUNT_LOGOUT_ON_GET = True
 JWT_AUTH_COOKIE = 'django-rest-auth'
 JWT_AUTH_REFRESH_COOKIE = 'my-refresh-token'
 
+# allauth
+ACCOUNT_SIGNUP_REDIRECT_URL = '/login/'
+
 
 # REST_USE_JWT = True
 
