@@ -4,8 +4,9 @@ from rest_framework import serializers
 
 try:
     from allauth.account import app_settings as allauth_settings
-    from allauth.utils import get_user_name_max_length
-    from allauth.account.adapter import get_adapter, email_address_exists, setup_user_email
+    from allauth.account.utils import setup_user_email
+    from allauth.utils import get_username_max_length, email_address_exists
+    from allauth.account.adapter import get_adapter
 except ImportError:
     raise ImportError('allauth needs to be added to INSTALLED_APPS.')
 

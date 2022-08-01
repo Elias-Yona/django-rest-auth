@@ -133,7 +133,7 @@ class LoginSerializer(serializers.Serializer):
         self.validate_auth_user_status(user)
 
         # If required, is the email verified
-        if 'dj_rest_auth.registration ' in settings.INSTALLED_APPS:
+        if 'django_rest_auth.registration ' in settings.INSTALLED_APPS:
             self.validate_email_verification_status(user)
 
         attrs['user'] = user

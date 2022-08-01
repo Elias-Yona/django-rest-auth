@@ -151,7 +151,7 @@ class LogoutView(APIView):
     Accepts/Returns nothing.
     """
     permission_classes = (AllowAny,)
-    throttle_scope = 'dj_rest_auth'
+    throttle_scope = 'django_rest_auth'
 
     def get(self, request, *args, **kwargs):
         if getattr(settings, 'ACCOUNT_LOGOUT_ON_GET', False):
