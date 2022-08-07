@@ -1,6 +1,7 @@
 from django.urls import path, re_path
+from django.views.generic import TemplateView
 
-from .views import RegisterView, AccountConfirmEmailView
+from .views import RegisterView
 
 
 urlpatterns = [
@@ -11,7 +12,10 @@ urlpatterns = [
     # with verification link is being sent, then it's required to render email
     # content.
     re_path(
-        r'^account-confirm-email/(?P<key>[-:\w]+)/$', AccountConfirmEmailView.as_view(),
+        r'^account-confirm-email/(?P<key>[-:\w]+)/$', TemplateView.as_view(),
         name='account_confirm_email',
     ),
+    path('account-email-verification-sent/', TemplateView.as_view(),
+         name='account_email_verification_sent')
+
 ]

@@ -85,10 +85,3 @@ class RegisterView(CreateAPIView):
             None,
         )
         return user
-
-
-class AccountConfirmEmailView(APIView):
-    # def post(self, request, *args, **kwargs):
-    #     return Response({"status": "Email verification link sent", "args": str(*args)},
-    #                     status=status.HTTP_200_OK)
-    pass
