@@ -70,3 +70,11 @@ class RegisterSerializer(serializers.Serializer):
         self.custom_signup(request, user)
         setup_user_email(request, user, [])
         return user
+
+
+class VerifyEmailSerializer(serializers.Serializer):
+    key = serializers.CharField
+
+
+class ResendEmailVerificationSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=allauth_settings.EMAIL_REQUIRED)

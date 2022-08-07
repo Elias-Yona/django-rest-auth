@@ -1,11 +1,15 @@
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from allauth.account import app_settings as allauth_settings
+from allauth.account.models import EmailAddress
 from allauth.account.utils import complete_signup
+from allauth.account.views import ConfirmEmailView
 from rest_framework.generics import CreateAPIView
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from rest_framework.exceptions import MethodNotAllowed
 
 from django_rest_auth.models import TokenModel
 from django_rest_auth.app_settings import (
@@ -13,6 +17,8 @@ from django_rest_auth.app_settings import (
 )
 from django_rest_auth.utils import jwt_encode
 from django_rest_auth.app_settings import create_token
+from django_rest_auth.registration.serializers import (
+    VerifyEmailSerializer, ResendEmailVerificationSerializer,)
 
 from .app_settings import RegisterSerializer, register_permission_classes
 
@@ -85,3 +91,39 @@ class RegisterView(CreateAPIView):
             None,
         )
         return user
+
+
+class VerifyEmailView(APIView, ConfirmEmailView):
+    permission_classes = (AllowAny,)
+    allowed_methods = ('POST', 'OPTIONS', 'HEAD')
+
+    def get_serializer(self, *args, **kwargs):
+        return VerifyEmailSerializer(*args, **kwargs)
+
+    def get(self, *args, **kwargs):
+        raise MethodNotAllowed('GET')
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.kwargs['key'] = serializer.validated_data['key']
+        confirmation = self.get_object()
+        confirmation.confirm(self.request)
+        return Response({'detail': _('ok')}, status=status.HTTP_200_OK)
+
+
+class ResendEmailVerificationView(CreateAPIView):
+    permission_classes = (AllowAny,)
+    serializer_class = ResendEmailVerificationSerializer
+    queryset = EmailAddress.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = EmailAddress.objects.filter(
+            **serializer.validated_data).first()
+        if email and not email.verified:
+            email.send_confirmation(request)
+
+        return Response({'detail': _('ok')}, status=status.HTTP_200_OK)
