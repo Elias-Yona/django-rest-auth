@@ -14,6 +14,9 @@ from django_rest_auth.serializers import (
 from django_rest_auth.serializers import (
     UserDetailsSerializer as DefaultUserDetailsSerializer,
 )
+from django_rest_auth.serializers import (
+    PasswordChangeSerializer as DefaultPasswordChangeSerializer
+)
 
 
 from .utils import import_callable, default_create_token
@@ -39,3 +42,8 @@ create_token = import_callable(
 
 UserDetailsSerializer = import_callable(serializers.get(
     'USER_DETAILS_SERIALIZER', DefaultUserDetailsSerializer))
+
+PasswordChangeSerializer = import_callable(
+    serializers.get('PASSWORD_CHANGE_SERIALIZER',
+                    DefaultPasswordChangeSerializer)
+)

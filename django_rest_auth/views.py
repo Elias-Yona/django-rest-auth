@@ -15,7 +15,7 @@ from rest_framework import status
 
 from .models import get_token_model
 from .app_settings import (LoginSerializer, JWTSerializerWithExpiration,
-                           JWTSerializer, TokenSerializer, create_token, UserDetailsSerializer,)
+                           JWTSerializer, TokenSerializer, create_token, UserDetailsSerializer, PasswordChangeSerializer,)
 from .utils import jwt_encode
 
 sensitive_post_parameters_m = method_decorator(
@@ -218,3 +218,13 @@ class UserDetailsView(RetrieveUpdateAPIView):
         django-rest-swagger
         """
         return get_user_model().objects.none()
+
+
+class PasswordChangeView(GenericAPIView):
+    """
+    Calls Django Auth SetPasswordForm save method.
+
+    Accepts the following POST parameters: new_password1, new_password2
+    Returns the success/fail message
+    """
+    serializer_class = PasswordChangeSerializer
