@@ -15,7 +15,7 @@ from rest_framework import status
 
 from .models import get_token_model
 from .app_settings import (LoginSerializer, JWTSerializerWithExpiration,
-                           JWTSerializer, TokenSerializer, create_token, UserDetailsSerializer, PasswordChangeSerializer,)
+                           JWTSerializer, TokenSerializer, create_token, UserDetailsSerializer, PasswordChangeSerializer, PasswordResetSerializer)
 from .utils import jwt_encode
 
 sensitive_post_parameters_m = method_decorator(
@@ -228,3 +228,25 @@ class PasswordChangeView(GenericAPIView):
     Returns the success/fail message
     """
     serializer_class = PasswordChangeSerializer
+
+
+class PasswordResetView(GenericAPIView):
+    """
+    Calls Django Auth PasswordResetForm save method.
+
+    Accepts the following POST parameters: email
+    Returns the success/fail message.
+    """
+    serializer_class = PasswordResetSerializer
+    permission_classes = (AllowAny,)
+    throttle_scope = 'django_rest_auth'
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+        return Response(
+            {'detail': _('Password reset email has been sent.')},
+            status=status.HTTP_200_OK
+        )

@@ -17,6 +17,8 @@ from django_rest_auth.serializers import (
 from django_rest_auth.serializers import (
     PasswordChangeSerializer as DefaultPasswordChangeSerializer
 )
+from django_rest_auth.serializers import (
+    PasswordResetSerializer as DefaultPasswordResetSerializer)
 
 
 from .utils import import_callable, default_create_token
@@ -47,3 +49,6 @@ PasswordChangeSerializer = import_callable(
     serializers.get('PASSWORD_CHANGE_SERIALIZER',
                     DefaultPasswordChangeSerializer)
 )
+
+PasswordResetSerializer = import_callable(serializers.get(
+    'PASSWORD_RESET_SERIALIZER', DefaultPasswordResetSerializer))
