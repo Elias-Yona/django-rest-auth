@@ -15,7 +15,7 @@ from rest_framework import status
 
 from .models import get_token_model
 from .app_settings import (LoginSerializer, JWTSerializerWithExpiration,
-                           JWTSerializer, TokenSerializer, create_token, UserDetailsSerializer, PasswordChangeSerializer, PasswordResetSerializer)
+                           JWTSerializer, TokenSerializer, create_token, UserDetailsSerializer, PasswordChangeSerializer, PasswordResetSerializer, PasswordResetConfirmSerializer,)
 from .utils import jwt_encode
 
 sensitive_post_parameters_m = method_decorator(
@@ -249,4 +249,30 @@ class PasswordResetView(GenericAPIView):
         return Response(
             {'detail': _('Password reset email has been sent.')},
             status=status.HTTP_200_OK
+        )
+
+
+class PasswordResetConfirmView(GenericAPIView):
+    """
+    Password reset e-mail link is confirmed, therefore
+    this resets the user's password.
+
+    Accepts the following POST parameters: token, uid,
+        new_password1, new_password2
+    Returns the successful/fail message.
+    """
+    serializer_class = PasswordResetConfirmSerializer
+    permission_classes = (AllowAny,)
+    throttle_scope = 'django_rest_auth'
+
+    @sensitive_post_parameters_m
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, kwargs)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {'detial': _('Password has been reset with the new password.')}
         )
